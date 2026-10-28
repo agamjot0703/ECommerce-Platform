@@ -1,0 +1,2 @@
+ADMIN|admin|admin123|admin@store.com
+CUSTOMER|alice|alice123|alice@example.com|750.00
