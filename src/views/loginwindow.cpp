@@ -12,7 +12,6 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QLabel>
-#include <QButtonGroup>
 
 // ─────────────────────────────────────────────────────────────
 // Constructor: Build all widgets and connect signals to slots.
