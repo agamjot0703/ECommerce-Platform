@@ -3,12 +3,6 @@
 #include <exception>
 #include <string>
 
-// ------------------------------------------------------------
-// Custom Exception Hierarchy for E-Commerce Platform
-// Demonstrates OOP Exception Handling inheriting from std::exception
-// ------------------------------------------------------------
-
-// Base exception for platform errors
 class AppException : public std::exception
 {
 protected:
@@ -22,7 +16,6 @@ public:
     }
 };
 
-// Thrown when an order exceeds available inventory stock
 class InsufficientStockException : public AppException
 {
 public:
@@ -30,7 +23,6 @@ public:
         : AppException("Not enough stock available for product: " + productName) {}
 };
 
-// Thrown when customer wallet balance is insufficient for checkout
 class InsufficientFundsException : public AppException
 {
 public:
@@ -39,7 +31,6 @@ public:
                        std::to_string(available) + "\nRequired: $" + std::to_string(required)) {}
 };
 
-// Thrown when an unrecognized discount coupon is entered
 class InvalidCouponException : public AppException
 {
 public:

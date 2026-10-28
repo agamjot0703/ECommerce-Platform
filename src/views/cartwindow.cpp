@@ -11,9 +11,6 @@
 #include <QLabel>
 #include <QLineEdit>
 
-// ─────────────────────────────────────────────────────────────
-// Constructor: receive the customer, products list, and parent.
-// ─────────────────────────────────────────────────────────────
 CartWindow::CartWindow(Customer *customer,
                        QVector<Product> &products,
                        QWidget *parent)
@@ -28,16 +25,12 @@ CartWindow::CartWindow(Customer *customer,
     updateTotalLabel();
 }
 
-// ─────────────────────────────────────────────────────────────
-// buildUI: create table, coupon input, totals, and action buttons.
-// ─────────────────────────────────────────────────────────────
 void CartWindow::buildUI()
 {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setSpacing(10);
     mainLayout->setContentsMargins(15, 15, 15, 15);
 
-    // ── Cart table ────────────────────────────────────────────
     cartTable = new QTableWidget(this);
     cartTable->setColumnCount(4);
     cartTable->setHorizontalHeaderLabels(
@@ -49,7 +42,6 @@ void CartWindow::buildUI()
     cartTable->verticalHeader()->setVisible(false);
     cartTable->setAlternatingRowColors(true);
 
-    // ── Coupon input row ──────────────────────────────────────
     QHBoxLayout *couponLayout = new QHBoxLayout();
     QLabel *couponLabel = new QLabel("Promo Code:", this);
     couponEdit = new QLineEdit(this);
@@ -60,7 +52,6 @@ void CartWindow::buildUI()
     couponLayout->addWidget(couponEdit);
     couponLayout->addWidget(couponButton);
 
-    // ── Total and Balance labels ──────────────────────────────
     totalLabel = new QLabel("Total: $0.00", this);
     QFont f = totalLabel->font();
     f.setPointSize(11);
@@ -72,7 +63,6 @@ void CartWindow::buildUI()
     balanceLabel->setStyleSheet("color: #2E7D32; font-weight: bold;");
     balanceLabel->setAlignment(Qt::AlignRight);
 
-    // ── Buttons ───────────────────────────────────────────────
     removeButton   = new QPushButton("❌  Remove Item",  this);
     checkoutButton = new QPushButton("✅  Checkout",     this);
     closeButton    = new QPushButton("Close",            this);
@@ -83,14 +73,12 @@ void CartWindow::buildUI()
     btnLayout->addWidget(checkoutButton);
     btnLayout->addWidget(closeButton);
 
-    // ── Assemble ──────────────────────────────────────────────
     mainLayout->addWidget(cartTable);
     mainLayout->addLayout(couponLayout);
     mainLayout->addWidget(totalLabel);
     mainLayout->addWidget(balanceLabel);
     mainLayout->addLayout(btnLayout);
 
-    // ── Styles ────────────────────────────────────────────────
     checkoutButton->setStyleSheet(
         "QPushButton { background-color: #4CAF50; color: white; "
         "padding: 7px 20px; border-radius: 4px; font-weight: bold; }"
@@ -106,7 +94,6 @@ void CartWindow::buildUI()
         "padding: 6px 12px; border-radius: 4px; }"
         "QPushButton:hover { background-color: #0277BD; }");
 
-    // ── Connections ───────────────────────────────────────────
     connect(removeButton,   &QPushButton::clicked,
             this,           &CartWindow::onRemoveItem);
     connect(couponButton,   &QPushButton::clicked,
@@ -117,9 +104,6 @@ void CartWindow::buildUI()
             this,           &QDialog::close);
 }
 
-// ─────────────────────────────────────────────────────────────
-// populateTable: clear the table and re-fill it from the cart.
-// ─────────────────────────────────────────────────────────────
 void CartWindow::populateTable()
 {
     cartTable->setRowCount(0);
@@ -141,7 +125,6 @@ void CartWindow::populateTable()
         cartTable->setItem(i, 3, new QTableWidgetItem(
             QString::number(subtotal, 'f', 2)));
 
-        // Centre-align numbers
         for (int col = 1; col <= 3; ++col)
             cartTable->item(i, col)->setTextAlignment(Qt::AlignCenter);
     }
@@ -149,9 +132,6 @@ void CartWindow::populateTable()
     cartTable->resizeColumnsToContents();
 }
 
-// ─────────────────────────────────────────────────────────────
-// getFinalTotal: calculate grand total minus discount.
-// ─────────────────────────────────────────────────────────────
 double CartWindow::getFinalTotal() const
 {
     double subtotal = customer->getCart()->calculateTotal();
@@ -160,9 +140,6 @@ double CartWindow::getFinalTotal() const
     return (finalVal > 0.0) ? finalVal : 0.0;
 }
 
-// ─────────────────────────────────────────────────────────────
-// updateTotalLabel: recalculate and display breakdown.
-// ─────────────────────────────────────────────────────────────
 void CartWindow::updateTotalLabel()
 {
     double subtotal = customer->getCart()->calculateTotal();
@@ -187,9 +164,6 @@ void CartWindow::updateTotalLabel()
                           QString::number(customer->getBalance(), 'f', 2));
 }
 
-// ─────────────────────────────────────────────────────────────
-// onApplyCoupon: validate promo code or throw custom exception.
-// ─────────────────────────────────────────────────────────────
 void CartWindow::onApplyCoupon()
 {
     QString code = couponEdit->text().trimmed().toUpper();
@@ -198,13 +172,13 @@ void CartWindow::onApplyCoupon()
     {
         if (code == "SAVE10")
         {
-            discountPercent = 0.10; // 10% discount
+            discountPercent = 0.10;
             QMessageBox::information(this, "Coupon Applied",
                 "Coupon 'SAVE10' applied! You get 10% off.");
         }
         else if (code == "WELCOME20")
         {
-            discountPercent = 0.20; // 20% discount
+            discountPercent = 0.20;
             QMessageBox::information(this, "Coupon Applied",
                 "Coupon 'WELCOME20' applied! You get 20% off.");
         }
@@ -223,9 +197,6 @@ void CartWindow::onApplyCoupon()
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// onRemoveItem: remove the selected row from the cart.
-// ─────────────────────────────────────────────────────────────
 void CartWindow::onRemoveItem()
 {
     int selectedRow = cartTable->currentRow();
@@ -241,10 +212,6 @@ void CartWindow::onRemoveItem()
     updateTotalLabel();
 }
 
-// ─────────────────────────────────────────────────────────────
-// onCheckout: validate stock and wallet funds using custom
-// exceptions, then record the order and update files.
-// ─────────────────────────────────────────────────────────────
 void CartWindow::onCheckout()
 {
     try
@@ -255,7 +222,6 @@ void CartWindow::onCheckout()
             return;
         }
 
-        // ── 1. Stock validation ───────────────────────────────
         const QVector<QPair<Product, int>> &cartItems = customer->getCart()->getItems();
 
         for (const QPair<Product, int> &entry : cartItems)
@@ -279,17 +245,14 @@ void CartWindow::onCheckout()
             }
         }
 
-        // ── 2. Wallet balance check ───────────────────────────
         double finalTotal = getFinalTotal();
         if (customer->getBalance() < finalTotal)
         {
             throw InsufficientFundsException(customer->getBalance(), finalTotal);
         }
 
-        // ── 3. Deduct wallet funds ────────────────────────────
         customer->deductBalance(finalTotal);
 
-        // Persist wallet update into users.txt
         QVector<User *> allUsers = FileManager::loadUsers("users.txt");
         for (User *u : allUsers)
         {
@@ -302,7 +265,6 @@ void CartWindow::onCheckout()
         FileManager::saveUsers("users.txt", allUsers);
         for (User *u : allUsers) delete u;
 
-        // ── 4. Build and save order ───────────────────────────
         QString orderId = "ORD-" + QDateTime::currentDateTime().toString("yyyyMMddHHmmss");
         QString dateStr = QDate::currentDate().toString("yyyy-MM-dd");
 
@@ -314,7 +276,6 @@ void CartWindow::onCheckout()
 
         FileManager::appendOrder("orders.txt", order);
 
-        // ── 5. Deduct product stock ───────────────────────────
         for (const QPair<Product, int> &cartEntry : cartItems)
         {
             for (Product &p : products)
@@ -328,7 +289,6 @@ void CartWindow::onCheckout()
         }
         FileManager::saveProducts("inventory.txt", products);
 
-        // ── 6. Clear cart and notify ──────────────────────────
         customer->getCart()->clearCart();
 
         QMessageBox::information(this, "Order Placed",

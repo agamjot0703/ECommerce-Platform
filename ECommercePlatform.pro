@@ -2,18 +2,15 @@ QT += core gui widgets
 
 CONFIG += c++17
 
-# Application name
 TARGET = ECommercePlatform
 TEMPLATE = app
 
-# Include paths so headers in subfolders can be included directly
 INCLUDEPATH += \
     src \
     src/models \
     src/storage \
     src/views
 
-# ── Source Files ─────────────────────────────────────────────
 SOURCES += \
     src/main.cpp \
     src/models/user.cpp \
@@ -28,7 +25,6 @@ SOURCES += \
     src/views/admindashboard.cpp \
     src/views/cartwindow.cpp
 
-# ── Header Files ─────────────────────────────────────────────
 HEADERS += \
     src/models/exceptions.h \
     src/models/user.h \

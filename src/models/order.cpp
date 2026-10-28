@@ -2,13 +2,11 @@
 #include <QStringList>
 #include <QDebug>
 
-// Default constructor
 Order::Order()
     : orderId(""), customerUsername(""), totalPrice(0.0), orderDate("")
 {
 }
 
-// Full constructor – called at checkout time
 Order::Order(const QString& orderId,
              const QString& customerUsername,
              const QVector<QPair<Product, int>>& items,
@@ -22,18 +20,13 @@ Order::Order(const QString& orderId,
 {
 }
 
-// ------------------------------------------------------------
-// toString: serialise to a single line for orders.txt
-// Format: OrderID|CustomerUsername|Date|TotalPrice|PID:Qty,PID:Qty,...
-// ------------------------------------------------------------
 QString Order::toString() const
 {
-    // Build the product-quantity segment, e.g. "P001:2,P003:1"
+
     QStringList productParts;
     for (const QPair<Product, int>& entry : items)
     {
-        // Store enough info to reconstruct the order display:
-        // PID:Name:Price:Qty   (colons inside fields avoided by design)
+
         QString segment = entry.first.getProductId()
                           + ":" + entry.first.getName()
                           + ":" + QString::number(entry.first.getPrice(), 'f', 2)
@@ -48,10 +41,6 @@ QString Order::toString() const
            productParts.join(",");
 }
 
-// ------------------------------------------------------------
-// fromString: parse a stored line back into an Order object.
-// Format: OrderID|CustomerUsername|Date|TotalPrice|PID:Name:Price:Qty,...
-// ------------------------------------------------------------
 Order Order::fromString(const QString& line)
 {
     QStringList parts = line.split("|");
@@ -66,7 +55,6 @@ Order Order::fromString(const QString& line)
     QString orderDate         = parts[2].trimmed();
     double  totalPrice        = parts[3].trimmed().toDouble();
 
-    // Parse the product list: "PID:Name:Price:Qty,PID:Name:Price:Qty"
     QVector<QPair<Product, int>> items;
     if (!parts[4].trimmed().isEmpty())
     {
@@ -81,7 +69,6 @@ Order Order::fromString(const QString& line)
                 double  price = seg[2].trimmed().toDouble();
                 int     qty   = seg[3].trimmed().toInt();
 
-                // Reconstruct a lightweight Product (stock not needed for history)
                 Product p(pid, name, price, 0, "");
                 items.append(qMakePair(p, qty));
             }
@@ -90,8 +77,6 @@ Order Order::fromString(const QString& line)
 
     return Order(orderId, customerUsername, items, totalPrice, orderDate);
 }
-
-// --- Getters ---
 
 QString Order::getOrderId()          const { return orderId;          }
 QString Order::getCustomerUsername() const { return customerUsername; }

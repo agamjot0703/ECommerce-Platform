@@ -12,9 +12,6 @@
 #include <QLabel>
 #include <QDateTime>
 
-// ─────────────────────────────────────────────────────────────
-// Constructor: load products, build the UI.
-// ─────────────────────────────────────────────────────────────
 AdminDashboard::AdminDashboard(Admin *admin, QWidget *parent)
     : QMainWindow(parent), admin(admin)
 {
@@ -34,9 +31,6 @@ AdminDashboard::~AdminDashboard()
     delete admin;
 }
 
-// ─────────────────────────────────────────────────────────────
-// buildUI: create dashboard header, analytics cards, and tabs
-// ─────────────────────────────────────────────────────────────
 void AdminDashboard::buildUI()
 {
     QWidget     *central    = new QWidget(this);
@@ -45,7 +39,6 @@ void AdminDashboard::buildUI()
     mainLayout->setSpacing(10);
     setCentralWidget(central);
 
-    // ── Title ─────────────────────────────────────────────────
     QLabel *titleLabel = new QLabel("⚙️  Admin Control Panel", central);
     QFont f = titleLabel->font();
     f.setPointSize(14);
@@ -54,7 +47,6 @@ void AdminDashboard::buildUI()
     titleLabel->setAlignment(Qt::AlignCenter);
     mainLayout->addWidget(titleLabel);
 
-    // ── Analytics Summary Bar ─────────────────────────────────
     QHBoxLayout *statsLayout = new QHBoxLayout();
 
     statsRevenueLabel  = new QLabel("💰 Revenue: $0.00", central);
@@ -74,7 +66,6 @@ void AdminDashboard::buildUI()
 
     mainLayout->addLayout(statsLayout);
 
-    // ── Tab widget ────────────────────────────────────────────
     tabWidget = new QTabWidget(central);
 
     QWidget *inventoryTab = new QWidget();
@@ -89,9 +80,6 @@ void AdminDashboard::buildUI()
     mainLayout->addWidget(tabWidget);
 }
 
-// ─────────────────────────────────────────────────────────────
-// updateStats: calculate total revenue, order count, and product count
-// ─────────────────────────────────────────────────────────────
 void AdminDashboard::updateStats()
 {
     QVector<Order> orders = FileManager::loadOrders("orders.txt");
@@ -116,15 +104,11 @@ void AdminDashboard::updateStats()
     statsProductsLabel->setText(prodStr);
 }
 
-// ─────────────────────────────────────────────────────────────
-// buildInventoryTab: table on the left, form on the right.
-// ─────────────────────────────────────────────────────────────
 void AdminDashboard::buildInventoryTab(QWidget *tab)
 {
     QHBoxLayout *tabLayout = new QHBoxLayout(tab);
     tabLayout->setSpacing(12);
 
-    // ── Left: product table ───────────────────────────────────
     inventoryTable = new QTableWidget(tab);
     inventoryTable->setColumnCount(5);
     inventoryTable->setHorizontalHeaderLabels(
@@ -137,11 +121,9 @@ void AdminDashboard::buildInventoryTab(QWidget *tab)
     inventoryTable->setAlternatingRowColors(true);
     inventoryTable->setMinimumWidth(380);
 
-    // Clicking a row auto-fills the form on the right
     connect(inventoryTable, &QTableWidget::cellClicked,
             this,           &AdminDashboard::onProductSelected);
 
-    // ── Right: data-entry form ────────────────────────────────
     QGroupBox   *formBox    = new QGroupBox("Product Details", tab);
     QFormLayout *formLayout = new QFormLayout(formBox);
     formBox->setFixedWidth(280);
@@ -165,7 +147,6 @@ void AdminDashboard::buildInventoryTab(QWidget *tab)
     formLayout->addRow("Stock:",       stockSpinBox);
     formLayout->addRow("Category:",    categoryEdit);
 
-    // ── Action buttons ────────────────────────────────────────
     addProductButton       = new QPushButton("➕  Add Product",    formBox);
     updateProductButton    = new QPushButton("✏️  Update Product",  formBox);
     restockButton          = new QPushButton("⚡  Restock (+10)",   formBox);
@@ -208,7 +189,6 @@ void AdminDashboard::buildInventoryTab(QWidget *tab)
     tabLayout->addWidget(inventoryTable, 1);
     tabLayout->addLayout(rightLayout);
 
-    // ── Connections ───────────────────────────────────────────
     connect(addProductButton,       &QPushButton::clicked,
             this,                   &AdminDashboard::onAddProduct);
     connect(updateProductButton,    &QPushButton::clicked,
@@ -221,9 +201,6 @@ void AdminDashboard::buildInventoryTab(QWidget *tab)
             this,                   &AdminDashboard::onRefreshInventory);
 }
 
-// ─────────────────────────────────────────────────────────────
-// buildOrdersTab: order history table and refresh button
-// ─────────────────────────────────────────────────────────────
 void AdminDashboard::buildOrdersTab(QWidget *tab)
 {
     QVBoxLayout *tabLayout = new QVBoxLayout(tab);
@@ -251,9 +228,6 @@ void AdminDashboard::buildOrdersTab(QWidget *tab)
             this,                &AdminDashboard::onRefreshOrders);
 }
 
-// ─────────────────────────────────────────────────────────────
-// populateInventoryTable: fill table with color coding
-// ─────────────────────────────────────────────────────────────
 void AdminDashboard::populateInventoryTable()
 {
     inventoryTable->setRowCount(0);
@@ -276,11 +250,9 @@ void AdminDashboard::populateInventoryTable()
         inventoryTable->setItem(i, 3, stockItem);
         inventoryTable->setItem(i, 4, new QTableWidgetItem(p.getCategory()));
 
-        // Centre-align numerics
         inventoryTable->item(i, 2)->setTextAlignment(Qt::AlignCenter);
         stockItem->setTextAlignment(Qt::AlignCenter);
 
-        // Highlight low or out of stock items
         if (p.getStock() == 0)
         {
             for (int col = 0; col < 5; ++col)
@@ -296,9 +268,6 @@ void AdminDashboard::populateInventoryTable()
     inventoryTable->resizeColumnsToContents();
 }
 
-// ─────────────────────────────────────────────────────────────
-// populateOrdersTable: read orders.txt and fill table
-// ─────────────────────────────────────────────────────────────
 void AdminDashboard::populateOrdersTable()
 {
     ordersTable->setRowCount(0);
@@ -322,9 +291,6 @@ void AdminDashboard::populateOrdersTable()
     ordersTable->resizeColumnsToContents();
 }
 
-// ─────────────────────────────────────────────────────────────
-// onProductSelected: fill form when clicking table row
-// ─────────────────────────────────────────────────────────────
 void AdminDashboard::onProductSelected()
 {
     int row = inventoryTable->currentRow();
@@ -338,9 +304,6 @@ void AdminDashboard::onProductSelected()
     categoryEdit->setText(p.getCategory());
 }
 
-// ─────────────────────────────────────────────────────────────
-// onAddProduct: create and append new Product
-// ─────────────────────────────────────────────────────────────
 void AdminDashboard::onAddProduct()
 {
     QString id       = idEdit->text().trimmed();
@@ -356,7 +319,6 @@ void AdminDashboard::onAddProduct()
         return;
     }
 
-    // Check for duplicate ID
     for (const Product &p : products)
     {
         if (p.getProductId() == id)
@@ -377,9 +339,6 @@ void AdminDashboard::onAddProduct()
     statusBar()->showMessage("Product \"" + name + "\" added.", 3000);
 }
 
-// ─────────────────────────────────────────────────────────────
-// onUpdateProduct: update selected product
-// ─────────────────────────────────────────────────────────────
 void AdminDashboard::onUpdateProduct()
 {
     QString id       = idEdit->text().trimmed();
@@ -412,9 +371,6 @@ void AdminDashboard::onUpdateProduct()
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// onQuickRestock: add +10 units to selected product stock
-// ─────────────────────────────────────────────────────────────
 void AdminDashboard::onQuickRestock()
 {
     int row = inventoryTable->currentRow();
@@ -434,9 +390,6 @@ void AdminDashboard::onQuickRestock()
     statusBar()->showMessage("Restocked +10 units for \"" + p.getName() + "\".", 3000);
 }
 
-// ─────────────────────────────────────────────────────────────
-// onDeleteProduct: remove product from inventory
-// ─────────────────────────────────────────────────────────────
 void AdminDashboard::onDeleteProduct()
 {
     int row = inventoryTable->currentRow();
@@ -466,9 +419,6 @@ void AdminDashboard::onDeleteProduct()
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// onRefreshInventory: reload inventory.txt and update table
-// ─────────────────────────────────────────────────────────────
 void AdminDashboard::onRefreshInventory()
 {
     products = FileManager::loadProducts("inventory.txt");
@@ -477,9 +427,6 @@ void AdminDashboard::onRefreshInventory()
     statusBar()->showMessage("Inventory refreshed.", 2000);
 }
 
-// ─────────────────────────────────────────────────────────────
-// onRefreshOrders: reload orders.txt and update table
-// ─────────────────────────────────────────────────────────────
 void AdminDashboard::onRefreshOrders()
 {
     populateOrdersTable();
@@ -487,9 +434,6 @@ void AdminDashboard::onRefreshOrders()
     statusBar()->showMessage("Orders refreshed.", 2000);
 }
 
-// ─────────────────────────────────────────────────────────────
-// closeEvent: save the inventory before the window closes
-// ─────────────────────────────────────────────────────────────
 void AdminDashboard::closeEvent(QCloseEvent *event)
 {
     FileManager::saveProducts("inventory.txt", products);

@@ -8,24 +8,21 @@
 #include <QCoreApplication>
 #include <QDebug>
 
-// Helper: build a full path checking data/ folder first, then current working directory
 static QString fullPath(const QString& filename)
 {
-    // Check in data/ folder relative to current working directory
+
     QString dataPath = QDir::currentPath() + "/data/" + filename;
     if (QFile::exists(dataPath))
     {
         return dataPath;
     }
 
-    // Check in data/ folder relative to executable directory (useful for Qt Creator builds)
     QString appDataPath = QCoreApplication::applicationDirPath() + "/data/" + filename;
     if (QFile::exists(appDataPath))
     {
         return appDataPath;
     }
 
-    // If data/ directory exists, put new files there
     if (QDir(QDir::currentPath() + "/data").exists())
     {
         return dataPath;
@@ -34,9 +31,6 @@ static QString fullPath(const QString& filename)
     return QDir::currentPath() + "/" + filename;
 }
 
-// ---------------------------------------------------------------
-// loadProducts: read inventory.txt line by line
-// ---------------------------------------------------------------
 QVector<Product> FileManager::loadProducts(const QString& filename)
 {
     QVector<Product> products;
@@ -45,7 +39,7 @@ QVector<Product> FileManager::loadProducts(const QString& filename)
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         qDebug() << "FileManager::loadProducts – cannot open" << fullPath(filename);
-        return products;   // Return empty vector on failure
+        return products;
     }
 
     QTextStream in(&file);
@@ -55,7 +49,7 @@ QVector<Product> FileManager::loadProducts(const QString& filename)
         if (!line.isEmpty())
         {
             Product p = Product::fromString(line);
-            if (!p.getProductId().isEmpty())   // Skip malformed lines
+            if (!p.getProductId().isEmpty())
             {
                 products.append(p);
             }
@@ -65,9 +59,6 @@ QVector<Product> FileManager::loadProducts(const QString& filename)
     return products;
 }
 
-// ---------------------------------------------------------------
-// saveProducts: overwrite inventory.txt with the current list
-// ---------------------------------------------------------------
 void FileManager::saveProducts(const QString& filename,
                                const QVector<Product>& products)
 {
@@ -86,9 +77,6 @@ void FileManager::saveProducts(const QString& filename,
     file.close();
 }
 
-// ---------------------------------------------------------------
-// appendOrder: add a single order line to orders.txt
-// ---------------------------------------------------------------
 void FileManager::appendOrder(const QString& filename, const Order& order)
 {
     QFile file(fullPath(filename));
@@ -103,9 +91,6 @@ void FileManager::appendOrder(const QString& filename, const Order& order)
     file.close();
 }
 
-// ---------------------------------------------------------------
-// loadOrders: read every order line from orders.txt
-// ---------------------------------------------------------------
 QVector<Order> FileManager::loadOrders(const QString& filename)
 {
     QVector<Order> orders;
@@ -134,10 +119,6 @@ QVector<Order> FileManager::loadOrders(const QString& filename)
     return orders;
 }
 
-// ---------------------------------------------------------------
-// loadUsers: read users.txt and construct polymorphic User objects.
-// The caller owns the returned pointers and must delete them.
-// ---------------------------------------------------------------
 QVector<User*> FileManager::loadUsers(const QString& filename)
 {
     QVector<User*> users;
@@ -185,9 +166,6 @@ QVector<User*> FileManager::loadUsers(const QString& filename)
     return users;
 }
 
-// ---------------------------------------------------------------
-// saveUsers: overwrite users.txt with the current user list
-// ---------------------------------------------------------------
 void FileManager::saveUsers(const QString& filename,
                             const QVector<User*>& users)
 {
@@ -206,13 +184,10 @@ void FileManager::saveUsers(const QString& filename,
     file.close();
 }
 
-// ---------------------------------------------------------------
-// seedProductsIfMissing: create a sample inventory on first run
-// ---------------------------------------------------------------
 void FileManager::seedProductsIfMissing(const QString& filename)
 {
     QString path = fullPath(filename);
-    if (QFile::exists(path)) return;   // Already present – nothing to do
+    if (QFile::exists(path)) return;
 
     QVector<Product> samples = {
         Product("P001", "Laptop",          899.99, 10, "Electronics"),
@@ -229,9 +204,6 @@ void FileManager::seedProductsIfMissing(const QString& filename)
     qDebug() << "FileManager::seedProductsIfMissing – created" << path;
 }
 
-// ---------------------------------------------------------------
-// seedUsersIfMissing: create a default admin + demo customer
-// ---------------------------------------------------------------
 void FileManager::seedUsersIfMissing(const QString& filename)
 {
     QString path = fullPath(filename);
@@ -243,7 +215,6 @@ void FileManager::seedUsersIfMissing(const QString& filename)
 
     saveUsers(filename, defaults);
 
-    // Clean up temporary objects
     for (User* u : defaults) delete u;
 
     qDebug() << "FileManager::seedUsersIfMissing – created" << path;

@@ -1,9 +1,5 @@
 #include "user.h"
 
-// ------------------------------------------------------------
-// User constructor: initialises the three core fields.
-// Protected – only called by subclass constructors.
-// ------------------------------------------------------------
 User::User(const QString& username,
            const QString& password,
            const QString& email)
@@ -11,12 +7,9 @@ User::User(const QString& username,
 {
 }
 
-// Virtual destructor body (needed even though it's virtual)
 User::~User()
 {
 }
-
-// --- Getters ---
 
 QString User::getUsername() const
 {
@@ -32,8 +25,6 @@ QString User::getEmail() const
 {
     return email;
 }
-
-// --- Setters ---
 
 void User::setPassword(const QString& password)
 {

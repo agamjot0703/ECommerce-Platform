@@ -1,9 +1,6 @@
 #include "admin.h"
 #include <QDebug>
 
-// ------------------------------------------------------------
-// Constructor: delegate to User base class
-// ------------------------------------------------------------
 Admin::Admin(const QString& username,
              const QString& password,
              const QString& email)
@@ -11,32 +8,22 @@ Admin::Admin(const QString& username,
 {
 }
 
-// Role identifier
 QString Admin::displayRole() const
 {
     return "Admin";
 }
 
-// Serialise for users.txt: "ADMIN|username|password|email"
 QString Admin::toString() const
 {
     return "ADMIN|" + username + "|" + password + "|" + email;
 }
 
-// ------------------------------------------------------------
-// addProduct: append a new product to the in-memory vector.
-// The caller is responsible for persisting via FileManager.
-// ------------------------------------------------------------
 void Admin::addProduct(QVector<Product>& products, const Product& newProduct)
 {
     products.append(newProduct);
     qDebug() << "Admin::addProduct –" << newProduct.getName() << "added.";
 }
 
-// ------------------------------------------------------------
-// updateProduct: find by ID and replace the entry.
-// Returns true if found, false otherwise.
-// ------------------------------------------------------------
 bool Admin::updateProduct(QVector<Product>& products,
                           const QString& productId,
                           const Product& updatedProduct)
@@ -54,10 +41,6 @@ bool Admin::updateProduct(QVector<Product>& products,
     return false;
 }
 
-// ------------------------------------------------------------
-// viewOrders: print orders to the debug console.
-// Actual GUI display is handled by AdminDashboard.
-// ------------------------------------------------------------
 void Admin::viewOrders(const QVector<Order>& orders) const
 {
     qDebug() << "=== All Orders ===";

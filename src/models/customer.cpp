@@ -4,44 +4,36 @@
 #include <QDateTime>
 #include <QDebug>
 
-// ------------------------------------------------------------
-// Constructor: initialise base class, then create the cart.
-// ------------------------------------------------------------
 Customer::Customer(const QString& username,
                    const QString& password,
                    const QString& email,
                    double balance)
     : User(username, password, email), balance(balance)
 {
-    cart = new Cart();   // Heap-allocate a fresh cart for this customer
+    cart = new Cart();
 }
 
-// Destructor: release the cart
 Customer::~Customer()
 {
     delete cart;
     cart = nullptr;
 }
 
-// Role identifier used in the UI status bar
 QString Customer::displayRole() const
 {
     return "Customer";
 }
 
-// Serialise for users.txt: "CUSTOMER|username|password|email|balance"
 QString Customer::toString() const
 {
     return "CUSTOMER|" + username + "|" + password + "|" + email + "|" + QString::number(balance, 'f', 2);
 }
 
-// Return current wallet balance
 double Customer::getBalance() const
 {
     return balance;
 }
 
-// Add money to the wallet balance
 void Customer::addBalance(double amount)
 {
     if (amount > 0.0)
@@ -50,7 +42,6 @@ void Customer::addBalance(double amount)
     }
 }
 
-// Deduct money from the wallet balance
 bool Customer::deductBalance(double amount)
 {
     if (amount > 0.0 && balance >= amount)
@@ -61,16 +52,11 @@ bool Customer::deductBalance(double amount)
     return false;
 }
 
-// Provide raw pointer access to the cart (not transferring ownership)
 Cart* Customer::getCart()
 {
     return cart;
 }
 
-// ------------------------------------------------------------
-// browseProducts: debug helper – the real browsing UI is in
-// CustomerDashboard.  This method exists to satisfy the OOP spec.
-// ------------------------------------------------------------
 void Customer::browseProducts(const QVector<Product>& products) const
 {
     qDebug() << "=== Available Products ===";
@@ -83,11 +69,6 @@ void Customer::browseProducts(const QVector<Product>& products) const
     }
 }
 
-// ------------------------------------------------------------
-// placeOrder: validate stock, build an Order, persist it,
-// deduct stock from the in-memory vector, and clear the cart.
-// Returns false if the cart is empty or any item lacks stock.
-// ------------------------------------------------------------
 bool Customer::placeOrder(QVector<Product>& products,
                           const QString& ordersFile,
                           const QString& productsFile)
@@ -98,7 +79,6 @@ bool Customer::placeOrder(QVector<Product>& products,
         return false;
     }
 
-    // Verify stock availability for every cart item
     for (const QPair<Product, int>& entry : cart->getItems())
     {
         bool found = false;
@@ -122,17 +102,14 @@ bool Customer::placeOrder(QVector<Product>& products,
         }
     }
 
-    // Build a unique order ID from the current timestamp
     QString orderId  = "ORD-" + QDateTime::currentDateTime().toString("yyyyMMddHHmmss");
     QString dateStr  = QDate::currentDate().toString("yyyy-MM-dd");
     double  total    = cart->calculateTotal();
 
     Order order(orderId, username, cart->getItems(), total, dateStr);
 
-    // Append order to orders.txt
     FileManager::appendOrder(ordersFile, order);
 
-    // Deduct stock from the in-memory product list
     for (const QPair<Product, int>& cartEntry : cart->getItems())
     {
         for (Product& p : products)
@@ -145,10 +122,8 @@ bool Customer::placeOrder(QVector<Product>& products,
         }
     }
 
-    // Persist updated inventory
     FileManager::saveProducts(productsFile, products);
 
-    // Empty the cart
     cart->clearCart();
 
     qDebug() << "Order placed:" << orderId << "Total: $" << total;
